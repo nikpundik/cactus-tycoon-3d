@@ -1,22 +1,26 @@
-import { useRef, useState } from "react";
+import { FC, useRef, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Sky, OrbitControls } from "@react-three/drei";
 import { gameMachine } from "./machines/game";
 import { useMachine } from "@xstate/react";
 import Plant from "./canvas/plant";
 import DesertGround from "./canvas/ground";
+import { InstancedMesh, Vector3 } from "three";
 
-function Box(props) {
-  const meshRef = useRef(null);
+const Box: FC<{ onClick: () => void; position: Vector3 }> = ({
+  position,
+  onClick,
+}) => {
+  const meshRef = useRef<InstancedMesh | null>(null);
   const [hovered, setHover] = useState(false);
   useFrame((_, delta) => {
     if (meshRef.current) meshRef.current.rotation.z += delta;
   });
   return (
     <mesh
-      {...props}
+      position={position}
       ref={meshRef}
-      onClick={props.onClick}
+      onClick={onClick}
       onPointerOver={() => setHover(true)}
       onPointerOut={() => setHover(false)}
     >
@@ -24,7 +28,7 @@ function Box(props) {
       <meshStandardMaterial color={hovered ? "hotpink" : "orange"} />
     </mesh>
   );
-}
+};
 
 function Game() {
   const [snapshot, send] = useMachine(gameMachine);
